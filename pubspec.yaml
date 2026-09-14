@@ -1,0 +1,50 @@
+name: inventaire
+description: "A new Flutter project."
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.1
+
+# À fusionner dans le pubspec.yaml existant, sous la section "dependencies:"
+# Adaptez les versions si des conflits apparaissent avec vos packages actuels.
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # --- Persistance locale ---
+  sqflite: ^2.3.3+1          # Base de données SQLite embarquée
+  path: ^1.9.0               # Construction des chemins de fichiers/BD
+  path_provider: ^2.1.4      # Accès aux répertoires de l'appareil
+
+  # --- Sécurité / authentification locale ---
+  flutter_secure_storage: ^11.1.0   # Stockage chiffré (PIN, mot de passe)
+  crypto: ^3.0.5                    # Hash du mot de passe avant stockage
+
+  # --- Import / export Excel & CSV ---
+  file_picker: ^12.3.0        # Sélection de fichier (écran "Importer")
+  excel: ^4.0.6               # Lecture/écriture de fichiers .xlsx
+  csv: ^8.0.0                 # Support des fichiers .csv
+  permission_handler: ^13.0.2 # Permissions de stockage (Android)
+  share_plus: ^13.3.0          # Partager/enregistrer le fichier exporté
+  
+
+  # --- État de l'application ---
+  provider: ^6.1.2            # Gestion d'état simple (StatNotifier par écran)
+
+  # --- UI ---
+  google_fonts: ^8.2.1        # Si vous voulez une police proche de la maquette
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+
+flutter:
+  uses-material-design: true
+  
