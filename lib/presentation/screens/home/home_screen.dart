@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../data/local/repositories/materiel_repository.dart';
+import '../../../data/local/services/last_import_info.dart';
 import '../../widgets/stat_card.dart';
 import '../../widgets/bottom_nav_bar.dart';
 import '../auth/login_screen.dart';
@@ -20,9 +21,11 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _materielRepository = MaterielRepository();
+  final _lastImportStore = LastImportInfoStore();
 
   int? _totalImportes;
   int? _totalExportes;
+  LastImportInfo? _lastImport;
   bool _isLoading = true;
 
   @override
@@ -38,10 +41,12 @@ class _HomeScreenState extends State<HomeScreen> {
     // exporté) est nécessaire plutôt qu'un suivi par enregistrement.
     final total = await _materielRepository.countAll();
     final exportes = await _materielRepository.countExportes();
+    final lastImport = await _lastImportStore.read();
     if (!mounted) return;
     setState(() {
       _totalImportes = total;
       _totalExportes = exportes;
+      _lastImport = lastImport;
       _isLoading = false;
     });
   }
@@ -162,14 +167,38 @@ class _HomeScreenState extends State<HomeScreen> {
               color: AppColors.inputFill,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Text(
-              'Dernier import',
-              style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Dernier import',
+                  style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _lastImport == null ? 'Aucun import effectué' : _lastImport!.fileName,
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (_lastImport != null)
+                  Text(
+                    _formatDate(_lastImport!.date),
+                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                  ),
+              ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    final jour = date.day.toString().padLeft(2, '0');
+    final mois = date.month.toString().padLeft(2, '0');
+    final heure = date.hour.toString().padLeft(2, '0');
+    final minute = date.minute.toString().padLeft(2, '0');
+    return '$jour/$mois/${date.year} à $heure:$minute';
   }
 
   Widget _buildGuideRapideCard() {

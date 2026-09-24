@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/local/models/materiel_model.dart';
 import '../../../data/local/repositories/materiel_repository.dart';
 import '../../../data/local/services/materiel_file_exporter.dart';
+import '../../../data/local/services/downloads_saver.dart';
 import '../../widgets/bottom_nav_bar.dart';
 import '../home/home_screen.dart';
 import '../materiels/materiels_screen.dart';
@@ -62,30 +62,31 @@ class _ExportScreenState extends State<ExportScreen> {
     });
 
     try {
-      final path = await _exporter.exportToFile(
+      final bytes = _exporter.buildExcelBytes(
         materiels: _materiels,
-        fileName: _fileNameController.text,
         sheetName: _sheetNameController.text,
       );
 
-      final result = await SharePlus.instance.share(
-        ShareParams(
-          files: [XFile(path)],
-          text: 'Export inventaire MTDPCE',
-        ),
+      final safeName = _fileNameController.text.trim().isEmpty
+          ? 'inventaire_export'
+          : _fileNameController.text.trim();
+
+      // Écrit directement dans le dossier public Téléchargements via
+      // MediaStore (canal natif) — pas de sélecteur, pas de dossier privé
+      // invisible comme le faisait file_saver.
+      await DownloadsSaver.saveToDownloads(
+        fileName: '$safeName.xlsx',
+        bytes: bytes,
+        mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       );
 
-      // On ne marque comme exporté que si le partage a bien abouti,
-      // pour éviter de considérer des lignes comme envoyées à tort.
-      if (result.status == ShareResultStatus.success) {
-        final ids = _materiels.where((m) => m.id != null).map((m) => m.id!).toList();
-        await _repository.markAsExported(ids);
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Fichier exporté et partagé avec succès.')),
-        );
-        _loadMateriels();
-      }
+      final ids = _materiels.where((m) => m.id != null).map((m) => m.id!).toList();
+      await _repository.markAsExported(ids);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Fichier téléchargé dans Téléchargements.')),
+      );
+      _loadMateriels();
     } catch (e) {
       setState(() => _errorMessage = "Échec de l'export. Réessayez.");
     } finally {
@@ -116,7 +117,7 @@ class _ExportScreenState extends State<ExportScreen> {
             children: [
               Row(
                 children: const [
-                  Icon(Icons.file_upload_rounded, color: AppColors.primaryRed, size: 24),
+                  Icon(Icons.file_download_rounded, color: AppColors.primaryRed, size: 24),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
