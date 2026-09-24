@@ -4,6 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../data/local/repositories/materiel_repository.dart';
 import '../../../data/local/services/materiel_file_parser.dart';
+import '../../../data/local/services/last_import_info.dart';
 import '../../widgets/bottom_nav_bar.dart';
 import '../home/home_screen.dart';
 import '../materiels/materiels_screen.dart';
@@ -23,6 +24,7 @@ class ImportScreen extends StatefulWidget {
 class _ImportScreenState extends State<ImportScreen> {
   final _parser = MaterielFileParser();
   final _repository = MaterielRepository();
+  final _lastImportStore = LastImportInfoStore();
 
   _ImportStep _step = _ImportStep.selection;
   String? _fileName;
@@ -71,6 +73,10 @@ class _ImportScreenState extends State<ImportScreen> {
     setState(() => _isProcessing = true);
     try {
       final result = await _repository.insertBatch(_parseResult!.valides);
+      await _lastImportStore.save(
+        fileName: _fileName ?? 'Fichier importé',
+        date: DateTime.now(),
+      );
       if (!mounted) return;
       setState(() {
         _importResult = result;
@@ -115,7 +121,7 @@ class _ImportScreenState extends State<ImportScreen> {
             children: [
               Row(
                 children: const [
-                  Icon(Icons.file_download_rounded, color: AppColors.primaryRed, size: 24),
+                  Icon(Icons.file_upload_rounded, color: AppColors.primaryRed, size: 24),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(

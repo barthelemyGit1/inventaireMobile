@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:excel/excel.dart' as excel_pkg;
 import 'package:path_provider/path_provider.dart';
 import '../models/materiel_model.dart';
@@ -17,18 +18,20 @@ class MaterielFileExporter {
     "Nom de l'utilisateur",
   ];
 
-  /// Construit le classeur Excel et l'écrit dans le répertoire temporaire
-  /// de l'application. Retourne le chemin complet du fichier généré.
-  Future<String> exportToFile({
+  /// Construit le classeur Excel en mémoire et retourne ses octets bruts.
+  /// Ne touche pas le disque — à utiliser avec file_saver pour un
+  /// enregistrement direct (Téléchargements sur Android) sans passer par
+  /// un fichier temporaire.
+  Uint8List buildExcelBytes({
     required List<MaterielModel> materiels,
-    required String fileName,
     required String sheetName,
-  }) async {
+  }) {
     final workbook = excel_pkg.Excel.createExcel();
 
+    final resolvedSheetName = sheetName.trim().isEmpty ? 'Inventaire' : sheetName.trim();
     final defaultSheetName = workbook.getDefaultSheet()!;
-    workbook.rename(defaultSheetName, sheetName.isEmpty ? 'Inventaire' : sheetName);
-    final sheet = workbook[sheetName.isEmpty ? 'Inventaire' : sheetName];
+    workbook.rename(defaultSheetName, resolvedSheetName);
+    final sheet = workbook[resolvedSheetName];
 
     sheet.appendRow(headers.map((h) => excel_pkg.TextCellValue(h)).toList());
 
@@ -51,6 +54,19 @@ class MaterielFileExporter {
     if (bytes == null) {
       throw Exception('Échec de la génération du fichier Excel.');
     }
+    return Uint8List.fromList(bytes);
+  }
+
+  /// Écrit le classeur dans le répertoire temporaire de l'application et
+  /// retourne le chemin complet. Conservé pour les cas où un vrai fichier
+  /// sur disque est nécessaire (ex. partage via share_plus) plutôt qu'un
+  /// enregistrement direct.
+  Future<String> exportToFile({
+    required List<MaterielModel> materiels,
+    required String fileName,
+    required String sheetName,
+  }) async {
+    final bytes = buildExcelBytes(materiels: materiels, sheetName: sheetName);
 
     final directory = await getTemporaryDirectory();
     final safeName = fileName.trim().isEmpty ? 'inventaire_export' : fileName.trim();

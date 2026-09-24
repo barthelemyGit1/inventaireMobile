@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.inventaire"
-    compileSdk = flutter.compileSdkVersion
+    
     ndkVersion = flutter.ndkVersion
 
     compileSdk = 37

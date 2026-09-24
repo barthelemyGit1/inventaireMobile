@@ -129,7 +129,7 @@ class _AddMaterielScreenState extends State<AddMaterielScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        widget.isEditing ? 'Modifier de bien' : 'Ajouter/modifier de bien',
+                        widget.isEditing ? 'Modifier un bien' : 'Ajouter un bien',
                         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -145,13 +145,14 @@ class _AddMaterielScreenState extends State<AddMaterielScreen> {
                 _buildField(
                   label: 'Designation',
                   controller: _designationController,
-                  hint: 'Le ...',
+                  hint: 'Ordinateur portable',
                   required: true,
                 ),
                 _buildField(
                   label: 'Marque/type',
                   controller: _marqueController,
-                  hint: 'Le ...',
+                  hint: 'Horizon',
+                  required: true,
                 ),
                 _buildDropdownField(
                   label: 'Etat',
@@ -163,8 +164,9 @@ class _AddMaterielScreenState extends State<AddMaterielScreen> {
                 _buildField(
                   label: 'Valeur',
                   controller: _valeurController,
-                  hint: 'Le ...',
+                  hint: '800000',
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  required: true,
                 ),
                 _buildDropdownField(
                   label: 'Présence',
@@ -177,11 +179,13 @@ class _AddMaterielScreenState extends State<AddMaterielScreen> {
                   label: "Service ou bureau d'affectation",
                   controller: _serviceController,
                   hint: 'DSI',
+                  required: true,
                 ),
                 _buildField(
                   label: "Nom de l'utilisateur",
                   controller: _utilisateurController,
                   hint: 'Ali Traoré',
+                  required: true,
                 ),
                 if (_errorMessage != null) ...[
                   const SizedBox(height: 8),
