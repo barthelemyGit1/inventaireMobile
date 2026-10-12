@@ -24,9 +24,9 @@ class AuthHeader extends StatelessWidget {
           ),
           child: const Icon(Icons.lock_rounded, color: Colors.white, size: 44),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 15),
         const Text(
-          'ACCES SECURISE',
+          'Inventaire des biens et services de l\'Etat',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
