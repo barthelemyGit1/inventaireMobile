@@ -4,7 +4,7 @@ class AppConstants {
   AppConstants._();
 
   // Identité
-  static const String appName = 'Inventaire des biens Matériels';
+  static const String appName = 'Accès sécurisé à l\'inventaire des biens de l\'Etat';
   static const String organisation = 'MTDPCE';
 
   // Base de données
